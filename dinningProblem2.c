@@ -39,6 +39,29 @@ int main (int argn, char **argv)
 		pthread_join (philo[i], NULL);
 	return 0;
 }
+int food_on_table (int eat)
+{
+    static int food = FOOD;
+    int myfood;
+	if(eat == 1){
+		pthread_mutex_lock (&food_lock);
+		if(food > 0){
+			food--;
+			myfood = food;
+		}
+		else{
+			myfood = -3;
+		}
+		pthread_mutex_unlock (&food_lock);
+	}
+	else{
+		pthread_mutex_lock (&food_lock);
+		myfood = food;
+		pthread_mutex_unlock (&food_lock);
+	}
+	return myfood;
+}
+
 
 //Thread
 void * philosopher (void *num)
@@ -47,21 +70,19 @@ void * philosopher (void *num)
 	long i, left_chopstick, right_chopstick, f;
 	
 	int hasLeft, hasRight;
-	int eated;
 	left_chopstick = id;
 	right_chopstick = (id + 1)%PHILOS;
-
-	while (f = food_on_table ()) {
-		eated = 0
+	while (food_on_table (0)) {
 		hasLeft = pthread_mutex_trylock (&chopstick[left_chopstick]);
 		if(hasLeft == 0){
 			hasRight = pthread_mutex_trylock (&chopstick[right_chopstick]);
 			if(hasRight == 0){
-
-				printf ("Philosopher %ld: got left chopstick %ld\n", id,  left_chopstick);
-				printf ("Philosopher %ld: got right chopstick %ld\n", id,  right_chopstick);
-				printf ("Philosopher %ld: eating -- food %ld.\n", id, f);
-
+				f = food_on_table(1) + 1;
+				if(f > 0){
+					printf ("Philosopher %ld: got left chopstick %ld\n", id,  left_chopstick);
+					printf ("Philosopher %ld: got right chopstick %ld\n", id,  right_chopstick);
+					printf ("Philosopher %ld: eating -- food %ld.\n", id, f);
+				}
 				pthread_mutex_unlock (&chopstick[left_chopstick]);
 				pthread_mutex_unlock (&chopstick[right_chopstick]);
 
@@ -73,31 +94,8 @@ void * philosopher (void *num)
 				pthread_mutex_unlock (&chopstick[left_chopstick]);
 			}
 		}
-	}
+	} 
 	return (NULL);
-}
-
-int food_on_table ()
-{
-    static int food = FOOD;
-    int myfood;
-
-    pthread_mutex_lock (&food_lock);
-    if (food > 0) {
-        food--;
-    }
-    myfood = food;
-    pthread_mutex_unlock (&food_lock);
-    return myfood;
-}
-
-int subtract_food(int *food){
-	pthread_mutex_lock (&food_lock);
-    if ((*food) > 0) {
-        (food)--;
-    }
-    myfood = food*;
-    pthread_mutex_unlock (&food_lock);
 }
 
 

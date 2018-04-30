@@ -66,9 +66,9 @@ void * philosopher (void *num)
 		printf ("Philosopher %ld: eating -- food %ld.\n", id, f);
 		pthread_mutex_unlock (&chopstick[left_chopstick]);
 		pthread_mutex_unlock (&chopstick[right_chopstick]);
-		int thinking_time=rand()%10;
-		printf ("Philosopher %ld is done eating and is now thinking for %d secs.\n", id, thinking_time);
-		sleep (thinking_time);
+		// int thinking_time=rand()%10;
+		// printf ("Philosopher %ld is done eating and is now thinking for %d secs.\n", id, thinking_time);
+		// sleep (thinking_time);
 	}
 	return (NULL);
 }
