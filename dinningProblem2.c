@@ -7,7 +7,7 @@
 
 #define PHILOS 5
 #define DELAY 5000
-#define FOOD 15
+#define FOOD 50
 
 void *philosopher (void *id);
 int food_on_table ();
@@ -49,9 +49,6 @@ int food_on_table (int eat)
 			food--;
 			myfood = food;
 		}
-		else{
-			myfood = -3;
-		}
 		pthread_mutex_unlock (&food_lock);
 	}
 	else{
@@ -73,25 +70,27 @@ void * philosopher (void *num)
 	left_chopstick = id;
 	right_chopstick = (id + 1)%PHILOS;
 	while (food_on_table (0)) {
-		hasLeft = pthread_mutex_trylock (&chopstick[left_chopstick]);
-		if(hasLeft == 0){
-			hasRight = pthread_mutex_trylock (&chopstick[right_chopstick]);
-			if(hasRight == 0){
-				f = food_on_table(1) + 1;
-				if(f > 0){
+		f = food_on_table(1) + 1;
+		int foi = 0;
+		while(foi == 0){
+			hasLeft = pthread_mutex_trylock (&chopstick[left_chopstick]);
+			if(hasLeft == 0){
+				hasRight = pthread_mutex_trylock (&chopstick[right_chopstick]);
+				if(hasRight == 0){
+					foi = 1;
 					printf ("Philosopher %ld: got left chopstick %ld\n", id,  left_chopstick);
 					printf ("Philosopher %ld: got right chopstick %ld\n", id,  right_chopstick);
 					printf ("Philosopher %ld: eating -- food %ld.\n", id, f);
-				}
-				pthread_mutex_unlock (&chopstick[left_chopstick]);
-				pthread_mutex_unlock (&chopstick[right_chopstick]);
+					pthread_mutex_unlock (&chopstick[left_chopstick]);
+					pthread_mutex_unlock (&chopstick[right_chopstick]);
 
-				// int thinking_time=rand()%10;
-				// printf ("Philosopher %ld is done eating and is now thinking for %d secs.\n", id, thinking_time);
-				// sleep (thinking_time);
-			} 
-			else{
-				pthread_mutex_unlock (&chopstick[left_chopstick]);
+					// int thinking_time=rand()%10;
+					// printf ("Philosopher %ld is done eating and is now thinking for %d secs.\n", id, thinking_time);
+					// sleep (thinking_time);
+				} 
+				else{
+					pthread_mutex_unlock (&chopstick[left_chopstick]);
+				}
 			}
 		}
 	} 

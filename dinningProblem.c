@@ -50,7 +50,8 @@ void * philosopher (void *num)
 	
 	left_chopstick = id;
 	right_chopstick = (id + 1)%PHILOS;
-	while (f = food_on_table ()) {
+	while (food_on_table (0)) {
+		f = food_on_table(1) + 1;
 		if(id % 2 == 0){
 			pthread_mutex_lock (&chopstick[left_chopstick]);
 			printf ("Philosopher %ld: got left chopstick %ld\n", id,  left_chopstick);
@@ -63,6 +64,7 @@ void * philosopher (void *num)
 			pthread_mutex_lock (&chopstick[left_chopstick]);
 			printf ("Philosopher %ld: got left chopstick %ld\n", id,  left_chopstick);
 		}
+		
 		printf ("Philosopher %ld: eating -- food %ld.\n", id, f);
 		pthread_mutex_unlock (&chopstick[left_chopstick]);
 		pthread_mutex_unlock (&chopstick[right_chopstick]);
@@ -73,18 +75,24 @@ void * philosopher (void *num)
 	return (NULL);
 }
 
-int food_on_table ()
+
+int food_on_table (int eat)
 {
     static int food = FOOD;
     int myfood;
-
-    pthread_mutex_lock (&food_lock);
-    if (food > 0) {
-        food--;
-    }
-    myfood = food;
-    pthread_mutex_unlock (&food_lock);
-    return myfood;
+	if(eat == 1){
+		pthread_mutex_lock (&food_lock);
+		if(food > 0){
+			food--;
+			myfood = food;
+		}
+		myfood = food;
+		pthread_mutex_unlock (&food_lock);
+	}
+	else{
+		pthread_mutex_lock (&food_lock);
+		myfood = food;
+		pthread_mutex_unlock (&food_lock);
+	}
+	return myfood;
 }
-
-
